@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1760793699830,
+      "tag": "0000_normal_gateway",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1760796763642,
+      "tag": "0001_ltree-fts",
+      "breakpoints": true
+    }
+  ]
+}

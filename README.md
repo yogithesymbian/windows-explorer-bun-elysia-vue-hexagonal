@@ -13,3 +13,21 @@ bun run dev
 ```
 
 Open http://localhost:3000/ with your browser to see the result.
+
+
+```
+bun create elysia api
+bun add drizzle-orm
+bun add -D drizzle-kit
+bun add dotenv
+
+```
+
+# Generate migration first
+```
+bunx drizzle-kit generate
+```
+
+```
+bun run src/db/migrate.ts
+```

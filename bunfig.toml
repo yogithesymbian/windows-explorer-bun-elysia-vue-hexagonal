@@ -1,0 +1,5 @@
+[test]
+smol = true
+reporter.junit = "reports/junit.xml"
+randomize = true
+coverageThreshold = { lines = 0.9, functions = 0.8, statements = 0.85 }
