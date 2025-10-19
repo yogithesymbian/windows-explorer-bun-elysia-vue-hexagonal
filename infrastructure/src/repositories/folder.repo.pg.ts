@@ -1,16 +1,22 @@
-import { db } from '@infrastructure/db/client';
+import { db } from '../../db/client';
 import { sql } from 'drizzle-orm';
 import type { IFoldersRepository, FolderRow } from '@application/ports/folder-repo.port';
 
 export class PgFoldersRepository implements IFoldersRepository {
   async getSubtreeByPath(rootPath: string, maxDepth: number): Promise<FolderRow[]> {
-    return db.execute(sql`
-      SELECT id, name, parent_id, path::text AS path, depth
-      FROM folders
-      WHERE ${sql.raw(`path <@ '${rootPath}'`)}
-        AND depth <= (SELECT depth FROM folders WHERE path = ${rootPath}::ltree) + ${maxDepth}
-      ORDER BY path;
-    `);
+    try {
+      return db.execute<FolderRow>(sql`
+        SELECT id, name, parent_id, path::text AS path, depth
+        FROM folders
+        WHERE path <@ CAST(${rootPath} AS ltree)
+          -- depth <= (nlevel(rootPath) - 1) + maxDepth
+          AND depth <= (nlevel(CAST(${rootPath} AS ltree)) - 1) + ${maxDepth}
+        ORDER BY path;
+      `);
+    } catch (error) {
+      console.error('[getSubtreeByPath] query error', error);
+      throw error
+    }
   }
 
   async getChildren(parentId: string, paging: { limit: number; offset: number }): Promise<FolderRow[]> {

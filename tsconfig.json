@@ -4,7 +4,7 @@
       "@application/*": ["./application/src/*"],
       "@infrastructure/*": ["./infrastructure/src/*"],
       "@api/*": ["./api/src/*"]
-    }
+    },
     /* Visit https://aka.ms/tsconfig to read more about this file */
 
     /* Projects */

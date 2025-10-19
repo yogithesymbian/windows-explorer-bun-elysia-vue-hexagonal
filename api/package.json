@@ -1,0 +1,16 @@
+{
+  "name": "explorer-api",
+  "version": "1.0.1",
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "pretest": "mkdir -p ../../reports",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "elysia": "latest"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  }
+}

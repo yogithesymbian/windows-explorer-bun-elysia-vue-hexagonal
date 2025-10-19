@@ -24,6 +24,13 @@ export const createApp = (deps?: Partial<Deps>) => {
   const listFiles      = new ListFiles(filesRepo);
   const searchUsecase  = new Search(foldersRepo, filesRepo);
 
+  // type SearchType = 'file' | 'folder';
+
+  const SearchEnum = {
+    file: 'file',
+    folder: 'folder'
+  } as const;
+
   const app = new Elysia()
     .onError(({ code, set }) => { if (code === 'VALIDATION') { set.status = 400; return { message: 'Invalid input' }; } })
 
@@ -70,6 +77,7 @@ export const createApp = (deps?: Partial<Deps>) => {
       }
     )
 
+    
     // /api/v1/search
     .get('/api/v1/search',
       ({ query }) => searchUsecase.execute({
@@ -81,7 +89,7 @@ export const createApp = (deps?: Partial<Deps>) => {
       {
         query: t.Object({
           q: t.Optional(t.String()),
-          type: t.Optional(t.Enum(['file', 'folder'])),
+          type: t.Optional(t.Enum(SearchEnum)),
           limit: t.Optional(t.Integer()),
           offset: t.Optional(t.Integer())
         })

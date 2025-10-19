@@ -3,11 +3,27 @@ import { sql } from 'drizzle-orm';
 
 const makePath = (labels: string[]) => labels.join('.');
 
-await db.execute(sql`INSERT INTO folders (id, name, parent_id, path, depth) VALUES
-  (gen_random_uuid(), 'root', NULL, 'root'::ltree, 0),
-  (gen_random_uuid(), 'projects', (SELECT id FROM folders WHERE path = 'root'), 'root.projects'::ltree, 1),
-  (gen_random_uuid(), 'mobile', (SELECT id FROM folders WHERE path = 'root.projects'), 'root.projects.mobile'::ltree, 2)
-;`);
+// await db.execute(sql`INSERT INTO folders (id, name, parent_id, path, depth) VALUES
+//   (gen_random_uuid(), 'root', NULL, 'root'::ltree, 0),
+//   (gen_random_uuid(), 'projects', (SELECT id FROM folders WHERE path = 'root'), 'root.projects'::ltree, 1),
+//   (gen_random_uuid(), 'mobile', (SELECT id FROM folders WHERE path = 'root.projects'), 'root.projects.mobile'::ltree, 2)
+// ;`);
+await db.execute(sql`
+  WITH root_folder AS (
+    INSERT INTO folders (id, name, parent_id, path, depth)
+    VALUES (gen_random_uuid(), 'root', NULL, 'root'::ltree, 0)
+    RETURNING id, path, depth
+  ),
+  projects_folder AS (
+    INSERT INTO folders (id, name, parent_id, path, depth)
+    SELECT gen_random_uuid(), 'projects', id, path || 'projects'::ltree, depth + 1
+    FROM root_folder
+    RETURNING id, path, depth
+  )
+  INSERT INTO folders (id, name, parent_id, path, depth)
+  SELECT gen_random_uuid(), 'mobile', id, path || 'mobile'::ltree, depth + 1
+  FROM projects_folder;
+`);
 
 await db.execute(sql`INSERT INTO files (id, folder_id, name, ext, size)
   SELECT gen_random_uuid(), id, 'README', 'md', 1024 FROM folders WHERE path = 'root.projects.mobile';`);

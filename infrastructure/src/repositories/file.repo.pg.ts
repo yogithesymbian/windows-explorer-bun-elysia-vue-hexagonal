@@ -1,4 +1,4 @@
-import { db } from '@infrastructure/db/client';
+import { db } from '../../db/client';
 import { sql } from 'drizzle-orm';
 import type { IFilesRepository, FileRow } from '@application/ports/file-repo.port';
 
