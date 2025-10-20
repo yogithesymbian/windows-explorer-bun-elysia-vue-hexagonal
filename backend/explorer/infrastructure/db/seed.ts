@@ -81,6 +81,16 @@ await db.execute(sql`
   INSERT INTO files (id, folder_id, name, ext, size)
   SELECT gen_random_uuid(), id, 'guide', 'pdf', 512000
   FROM folders WHERE path = 'infokes.projects.web.user_manual'::ltree;
+
+  -- user_manual: index.html
+  INSERT INTO files (id, folder_id, name, ext, size)
+  SELECT gen_random_uuid(), id, 'index', 'html', 3072
+  FROM folders WHERE path = 'infokes.projects.web'::ltree;
+  
+  -- user_manual: index.ts
+  INSERT INTO files (id, folder_id, name, ext, size)
+  SELECT gen_random_uuid(), id, 'index', 'ts', 4096
+  FROM folders WHERE path = 'infokes.projects.web'::ltree;
 `);
 
 console.log('✅ Seed done');
