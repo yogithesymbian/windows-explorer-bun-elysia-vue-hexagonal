@@ -3,6 +3,7 @@
 Backend API untuk aplikasi Windows Explorer-like berbasis web. Dibangun dengan arsitektur hexagonal (clean architecture), menggunakan Bun + Elysia + PostgreSQL + Redis, dan dioptimalkan untuk scalability.
 
 ## 🚀 Tech Stack
+### Backend
 - **Runtime**: Bun
 - **Framework**: Elysia
 - **Architecture**: Hexagonal / Clean Architecture
@@ -13,6 +14,12 @@ Backend API untuk aplikasi Windows Explorer-like berbasis web. Dibangun dengan a
 - **Testing**: k6, wrk, Spectral, EXPLAIN ANALYZE
 - **API Spec**: OpenAPI (Scalar) + Spectral linting
 - **Monorepo**: explorer-api & explorer-infrastructure
+### frontend
+- **Runtime**: Bun
+- **Library**: Vue3 + Naive UI (Scratch TreeNode)
+- **Architecture**: Hexagonal / Clean Architecture
+- **Testing**: 
+- **Monorepo**: explorer-fe
 
 ## 📁 Features
 
@@ -108,6 +115,49 @@ OpenAPI spec tersedia di `api/docs/openapi.json`, dilint dengan Spectral untuk m
 
 ## 📌 Setup
 
+1. Clone repository:
+```shell
+git clone https://github.com/yogithesymbian/windows-explorer-bun-elysia-vue-hexagonal
+```
+2. go to directory `windows-explorer-bun-elysia-vue-hexagonal` and Install Package 
+```shell
+bun install
+```
+3. Setup ENV
+```shell
+bun run setup:env
+```
+4. Configuration Backend
+```shell
+bun run db:migrate
+bun run db:seed
+```
+5. Running For Backend
+```ts
+bun run dev:api
+```
+```ts
+$ bun --filter explorer-api --env-file=./backend/explorer/.env dev
+explorer-api dev $ bun run --watch src/index.ts
+│ 🦊 Elysia running at http://localhost:8080
+│ 🦊 UI spec http://localhost:8080/docs
+│ 🦊 RAW spec http://localhost:8080/docs/openapi.json
+└─ Running...
+```
+6. Running For Frontend
+```ts
+bun run dev:fe
+```
+```ts
+$ bun --filter explorer-fe --env-file=./frontend/explorer/.env dev
+explorer-fe dev $ bun --bun vite
+│ 
+│   VITE v7.1.11  ready in 283 ms
+│ 
+│   ➜  Local:   http://localhost:5173/
+│   ➜  Network: use --host to expose
+└─ Running...
+```
 
 ##  🧠 Author
 Yogi Arif Widodo
