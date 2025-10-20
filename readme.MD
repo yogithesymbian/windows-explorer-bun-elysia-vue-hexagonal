@@ -2,6 +2,8 @@
 
 Backend API untuk aplikasi Windows Explorer-like berbasis web. Dibangun dengan arsitektur hexagonal (clean architecture), menggunakan Bun + Elysia + PostgreSQL + Redis, dan dioptimalkan untuk scalability.
 
+Frontend menggunakan Vue 3 untuk consume API, dilengkapi dengan Naive UI sebagai komponen antarmuka, serta Bun + scratch component untuk performa tinggi.
+
 ### example for ltree
 ```mermaid
 sequenceDiagram
