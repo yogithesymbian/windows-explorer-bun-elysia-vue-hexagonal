@@ -23,16 +23,3 @@ services:
     envVars:
       - key: VITE_API_URL
         value: https://yoexplorer-api.onrender.com
-
-  # Manual migration
-  - type: private_service
-    name: explorer-migrations
-    env: bun
-    rootDir: backend/explorer/infrastructure
-    plan: free
-    buildCommand: bun install
-    startCommand: bun run migrate
-    autoDeploy: false
-    envVars:
-      - key: NODE_ENV
-        value: production
