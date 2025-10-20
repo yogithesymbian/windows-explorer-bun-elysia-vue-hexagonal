@@ -5,6 +5,7 @@ import { filesRoutes } from './routes/files.routes';
 import { searchRoutes } from './routes/search.routes';
 import { openApiPlugin } from './plugins/openapi.plugin';
 import cors from '@elysiajs/cors';
+import { APP_CONFIG } from './config/app.config';
 // import { DomainError } from '@application/errors';
 
 export const createApp = (depsOverride?: Partial<Deps>) => {
@@ -12,7 +13,7 @@ export const createApp = (depsOverride?: Partial<Deps>) => {
   return new Elysia()
     .use(openApiPlugin)
     .use(cors({
-      origin: 'http://localhost:5173', // or '*' for all
+      origin: APP_CONFIG.CORS_ORIGIN, // or '*' for all
       credentials: true
     }))
     .use(foldersRoutes(deps))
