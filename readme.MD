@@ -1,3 +1,22 @@
+# 📸 Application Preview Gallery
+
+## 🔷 Frontend Preview
+| Screenshot | Screenshot |
+|-----------|-----------|
+| <a href="./docs/gallery/frontend-1.webp"><img src="./docs/gallery/frontend-1.webp" width="300" alt="Frontend UI 1"></a> | <a href="./docs/gallery/frontend-2.webp"><img src="./docs/gallery/frontend-2.webp" width="300" alt="Frontend UI 2"></a> |
+
+> *Klik gambar untuk memperbesar*
+
+---
+
+## 🔶 Backend Preview
+| Screenshot | Screenshot |
+|-----------|-----------|
+| <a href="./docs/gallery/backend-1.webp"><img src="./docs/gallery/backend-1.webp" width="300" alt="Backend 1"></a> | <a href="./docs/gallery/backend-2.webp"><img src="./docs/gallery/backend-2.webp" width="300" alt="Backend 2"></a> |
+
+> *Klik gambar untuk memperbesar*
+
+
 # 🗂️ Windows Explorer Backend + Frontend
 
 Backend API untuk aplikasi Windows Explorer-like berbasis web. Dibangun dengan arsitektur hexagonal (clean architecture), menggunakan Bun + Elysia + PostgreSQL + Redis, dan dioptimalkan untuk scalability.
