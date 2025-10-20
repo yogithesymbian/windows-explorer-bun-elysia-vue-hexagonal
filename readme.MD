@@ -3,7 +3,8 @@
 Backend API untuk aplikasi Windows Explorer-like berbasis web. Dibangun dengan arsitektur hexagonal (clean architecture), menggunakan Bun + Elysia + PostgreSQL + Redis, dan dioptimalkan untuk scalability.
 
 ### example for ltree
-```sequenceDiagram
+```mermaid
+sequenceDiagram
   autonumber
   participant UI as Vue3 UI (composable/usecase FE)
   participant API as Elysia Controller
