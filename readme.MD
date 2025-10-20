@@ -221,5 +221,10 @@ explorer-fe dev $ bun --bun vite
 To be honest, I mainly use AI to speed up development. It helps me build backend and frontend apps using the Hexagonal Pattern, including writing tests. AI also makes code reviews easier and helps reduce mistakes. I always ask for references from official documentation, public journals, or books to support the final answers.
 
 
-##  🧠 Author
-Yogi Arif Widodo
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+Copyright (c) 2025 yogiveloper / yogithesymbian (Yogi Arif Widodo)
