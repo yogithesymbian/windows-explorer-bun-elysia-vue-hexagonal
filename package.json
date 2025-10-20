@@ -1,0 +1,24 @@
+{
+  "name": "yo-explorer-infokes",
+  "private": true,
+  "workspaces": [
+    "backend/explorer/*"
+  ],
+  "scripts": {
+    "dev:api": "bun --filter explorer-api --env-file=./backend/explorer/.env dev",
+
+    "docs:export": "bun --filter explorer-api run docs:export",
+    "lint:api": "bun --filter explorer-api run lint:api",
+
+    "db:migrate": "bun --filter explorer-infrastructure --env-file=./backend/explorer/.env migrate",
+    "db:seed": "bun --filter explorer-infrastructure --env-file=./backend/explorer/.env seed",
+    "db:gen": "bun --filter explorer-infrastructure --env-file=./backend/explorer/.env db:gen",
+    "db:gen:custom": "bun --filter explorer-infrastructure --env-file=./backend/explorer/.env db:gen:custom",
+    "db:test": "bun --filter explorer-infrastructure --env-file=./backend/explorer/.env test",
+
+    "pretest": "mkdir -p reports",
+    "test:api": "bun --filter explorer-api test",
+
+    "test": "bun --filter '*' test"
+  }
+}
