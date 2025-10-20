@@ -4,20 +4,20 @@ import { sql } from 'drizzle-orm';
 const makePath = (labels: string[]) => labels.join('.');
 
 // await db.execute(sql`INSERT INTO folders (id, name, parent_id, path, depth) VALUES
-//   (gen_random_uuid(), 'root', NULL, 'root'::ltree, 0),
-//   (gen_random_uuid(), 'projects', (SELECT id FROM folders WHERE path = 'root'), 'root.projects'::ltree, 1),
-//   (gen_random_uuid(), 'mobile', (SELECT id FROM folders WHERE path = 'root.projects'), 'root.projects.mobile'::ltree, 2)
+//   (gen_random_uuid(), 'infokes', NULL, 'infokes'::ltree, 0),
+//   (gen_random_uuid(), 'projects', (SELECT id FROM folders WHERE path = 'infokes'), 'infokes.projects'::ltree, 1),
+//   (gen_random_uuid(), 'mobile', (SELECT id FROM folders WHERE path = 'infokes.projects'), 'infokes.projects.mobile'::ltree, 2)
 // ;`);
 await db.execute(sql`
-  WITH root_folder AS (
+  WITH infokes_folder AS (
     INSERT INTO folders (id, name, parent_id, path, depth)
-    VALUES (gen_random_uuid(), 'root', NULL, 'root'::ltree, 0)
+    VALUES (gen_random_uuid(), 'infokes', NULL, 'infokes'::ltree, 0)
     RETURNING id, path, depth
   ),
   projects_folder AS (
     INSERT INTO folders (id, name, parent_id, path, depth)
     SELECT gen_random_uuid(), 'projects', id, path || 'projects'::ltree, depth + 1
-    FROM root_folder
+    FROM infokes_folder
     RETURNING id, path, depth
   ),
   mobile_folder AS (
@@ -61,26 +61,26 @@ await db.execute(sql`
   SELECT gen_random_uuid(), id, 'README', 'md', 2048
   FROM folders
   WHERE path IN (
-    'root.projects.web.backend'::ltree,
-    'root.projects.web.frontend'::ltree,
-    'root.projects.web.user_manual'::ltree
+    'infokes.projects.web.backend'::ltree,
+    'infokes.projects.web.frontend'::ltree,
+    'infokes.projects.web.user_manual'::ltree
   );
 
   -- Dummy files tambahan
   -- backend: index.ts
   INSERT INTO files (id, folder_id, name, ext, size)
   SELECT gen_random_uuid(), id, 'index', 'ts', 4096
-  FROM folders WHERE path = 'root.projects.web.backend'::ltree;
+  FROM folders WHERE path = 'infokes.projects.web.backend'::ltree;
 
   -- frontend: index.html
   INSERT INTO files (id, folder_id, name, ext, size)
   SELECT gen_random_uuid(), id, 'index', 'html', 3072
-  FROM folders WHERE path = 'root.projects.web.frontend'::ltree;
+  FROM folders WHERE path = 'infokes.projects.web.frontend'::ltree;
 
   -- user_manual: guide.pdf
   INSERT INTO files (id, folder_id, name, ext, size)
   SELECT gen_random_uuid(), id, 'guide', 'pdf', 512000
-  FROM folders WHERE path = 'root.projects.web.user_manual'::ltree;
+  FROM folders WHERE path = 'infokes.projects.web.user_manual'::ltree;
 `);
 
 console.log('✅ Seed done');

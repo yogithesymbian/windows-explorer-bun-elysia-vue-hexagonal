@@ -7,7 +7,10 @@ import { GetBreadcrumbsUseCase } from '@/application/usecases/get-breadcrumbs.us
 import { ListFilesUseCase } from '@/application/usecases/list-files.usecase'
 import { SearchUseCase } from '@/application/usecases/search.usecase'
 
-const apiClient = new ApiClient('http://localhost:8080/api/v1')
+const apiBaseUrl = import.meta.env.VITE_API_URL;
+const apiBaseVersion = import.meta.env.VITE_API_VERSION;
+const apiClient = new ApiClient(`${apiBaseUrl}${apiBaseVersion}`);
+// const apiClient = new ApiClient('http://localhost:8080/api/v1')
 
 // Adapters (Infrastructure)
 const folderPort = new FolderApiAdapter(apiClient)

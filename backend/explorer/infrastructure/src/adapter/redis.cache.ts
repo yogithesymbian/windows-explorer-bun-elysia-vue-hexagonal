@@ -1,7 +1,8 @@
 import Redis from 'ioredis';
 import { ICache } from '@application/ports/cache.port';
+import { APP_CONFIG } from '@api/config/app.config';
 
-const redis = new Redis(process.env.REDIS_URL ?? 'redis://localhost:6379');
+const redis = new Redis(APP_CONFIG.REDIS_URL);
 
 export class RedisCache implements ICache {
   async get<T>(key: string): Promise<T | null> {

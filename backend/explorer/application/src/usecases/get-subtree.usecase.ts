@@ -3,6 +3,7 @@ import type { FolderDTO } from '../dto/folder.dto';
 import { toFolderDTO } from '@infrastructure/mappers/folder.mapper';
 import { NotFoundError } from '@application/errors';
 import { ICache } from '@application/ports/cache.port';
+import { APP_CONFIG } from '@api/config/app.config';
 
 export class GetSubtree {
   constructor(
@@ -19,7 +20,8 @@ export class GetSubtree {
       throw new NotFoundError('Folder', { path: input.rootPath })
     }
     const result = rows.map(toFolderDTO);
-    await this.cache.set(cacheKey, result, 300);
+    const cacheTTL = Number(APP_CONFIG.CACHE_SUBTREE_TTL_SECONDS);
+    await this.cache.set(cacheKey, result, cacheTTL);
     return result;
   }
 }
