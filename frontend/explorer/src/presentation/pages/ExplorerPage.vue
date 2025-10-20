@@ -3,8 +3,8 @@
 import { inject, onMounted, provide } from "vue";
 import { NLayout, NLayoutSider, NLayoutContent } from "naive-ui";
 import { useFolderViewModel } from "../viewmodels/useFolderViewModel";
-import SidebarTree from "../components/SidebarTree.vue";
-import RightPanel from "../components/RightPanel.vue";
+import InfokesRightPanel from "../components/InfokesRightPanel.vue";
+import InfokesSidebarTree from "../components/InfokesSidebarTree.vue";
 
 const container = inject<any>('container');
 if (!container) throw new Error('DI container not found');
@@ -24,10 +24,10 @@ onMounted(() => {
 <template>
   <NLayout has-sider>
     <NLayoutSider width="320" bordered content-style="padding: 8px">
-      <SidebarTree />
+      <InfokesSidebarTree />
     </NLayoutSider>
     <NLayoutContent>
-      <RightPanel />
+      <InfokesRightPanel />
     </NLayoutContent>
   </NLayout>
 </template>

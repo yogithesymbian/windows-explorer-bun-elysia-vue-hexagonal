@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import { inject } from "vue";
 import { NEmpty, NGrid, NGridItem, NCard } from "naive-ui";
+import InfokesBreadCrumbs from "./InfokesBreadCrumbs.vue";
 
 const vm = inject<any>('folderVM');
 if (!vm) throw new Error('folderVM not provided');
@@ -9,11 +10,13 @@ if (!vm) throw new Error('folderVM not provided');
 
 <template>
   <div class="right-panel">
-    <div v-if="!vm.selectedId" class="placeholder">
+    <div v-if="!vm.selectedId.value" class="placeholder">
       <NEmpty description="Pilih folder di panel kiri untuk melihat subfolder" />
     </div>
     <div v-else>
-      <NCard :title="vm.selectedId.value + vm.selectedId.value" size="small">
+      <InfokesBreadCrumbs/>
+      <!-- :title="vm.selectedId.value + vm.selectedId.value" size="small" -->
+      <NCard>
         <NGrid cols="12" x-gap="8" y-gap="8">
           <NGridItem v-for="child in vm.rightPanelChildren.value" :key="child?.id" :span="3">
             <div class="tile">

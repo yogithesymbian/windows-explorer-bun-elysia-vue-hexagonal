@@ -73,32 +73,34 @@ export function useFolderViewModel(folderPort: FolderPort) {
   }
 
   async function loadRoot(rootPath: string, maxDepth = 1) {
-    loading.value = true
-    error.value = null
+    loading.value = true;
+    error.value = null;
     try {
-      const flat = await folderPort.getSubTree(rootPath, maxDepth)
-      console.debug('[loadRoot] flat len =', flat.length, flat)
-      const tree = buildTreeFromFlat(flat)
-      console.debug('[loadRoot] tree roots =', tree.length, tree)
-      treeData.value = tree
-      buildIndex(tree)
-      selectedId.value = null
+      const flat = await folderPort.getSubTree(rootPath, maxDepth);
+      console.debug('[loadRoot] flat len =', flat.length, flat);
+      const tree = buildTreeFromFlat(flat);
+      console.debug('[loadRoot] tree roots =', tree.length, tree);
+      treeData.value = tree;
+      buildIndex(tree);
+      selectedId.value = null;
+      // [breadcrumbs] reset jika pindah root
+      breadcrumbs.value = [];
+      breadcrumbsError.value = null;
     } catch (err: any) {
-      error.value = err.message || 'Failed to load root folders'
+      error.value = err.message || 'Failed to load root folders';
     } finally {
-      loading.value = false
+      loading.value = false;
     }
   }
 
   async function loadChildren(folderId: ID) {
     try {
       console.log("Loading children for folderId=", folderId);
-      const children = await folderPort.getChildren(folderId); // direct children (flat atau already direct)
-      // normalisasi hasil children: direct nodes saja
+      const children = await folderPort.getChildren(folderId); // direct children (flat/ direct)
       const normalized: FolderNode[] = children.map((c) => ({
         ...c,
-        children: [],           // belum tahu anak-anaknya, akan lazy lagi
-        hasChildren: undefined, // unknown -> tetap bisa expand
+        children: [],
+        hasChildren: undefined,
         childCount: undefined,
       }));
       return normalized;
@@ -116,7 +118,6 @@ export function useFolderViewModel(folderPort: FolderPort) {
   function attachChildren(parentId: ID, children: FolderNode[]) {
     const parent = findNodeById(parentId);
     if (!parent) return;
-    // reactive
     parent.children = children;
     parent.childCount = children.length;
     parent.hasChildren = children.length > 0;
@@ -131,7 +132,6 @@ export function useFolderViewModel(folderPort: FolderPort) {
     const node = findNodeById(id);
     if (!node) return;
 
-    // kalau belum ada children -> lazy fetch sekali
     if ((!node.children || node.children.length === 0) && !loadingIds.value.has(id)) {
       try {
         loadingIds.value.add(id);
@@ -146,12 +146,13 @@ export function useFolderViewModel(folderPort: FolderPort) {
 
   function select(id: ID) {
     selectedId.value = id;
-    // opsional: auto-load direct children untuk panel kanan bila belum ada
+    // auto-load direct children untuk panel kanan bila belum ada (non-blocking)
     const node = findNodeById(id);
     if (node && (!node.children || node.children.length === 0)) {
-      // fire & forget (tidak perlu blocking)
       loadChildren(id).then((chs) => attachChildren(id, chs));
     }
+    // [breadcrumbs] refresh (non-blocking)
+    refreshBreadcrumbs(id);
   }
 
   async function search(keyword: string) {
@@ -173,6 +174,106 @@ export function useFolderViewModel(folderPort: FolderPort) {
     return node?.children ?? [];
   });
 
+  // ============================
+  // [breadcrumbs] STATE & ACTION
+  // ============================
+  const breadcrumbs = ref<FolderEntity[]>([]);
+  const breadcrumbsLoading = ref(false);
+  const breadcrumbsError = ref<string | null>(null);
+  const breadcrumbsCache = ref<Map<ID, FolderEntity[]>>(new Map());
+
+  // untuk mencegah race condition (klik cepat di tree)
+  let lastBreadcrumbRequestFor: ID | null = null;
+
+  async function loadBreadcrumbs(folderId: ID, opts: { useCache?: boolean } = {}) {
+    const { useCache = true } = opts;
+    breadcrumbsLoading.value = true;
+    breadcrumbsError.value = null;
+
+    try {
+      if (useCache && breadcrumbsCache.value.has(folderId)) {
+        breadcrumbs.value = breadcrumbsCache.value.get(folderId)!;
+        return breadcrumbs.value;
+      }
+
+      lastBreadcrumbRequestFor = folderId;
+      const list = await folderPort.getBreadcrumbs(folderId);
+      // Pastikan urutan root -> current
+      const ordered = list
+        .slice() // copy
+        .sort((a, b) => (a.depth ?? 0) - (b.depth ?? 0));
+
+      // jika respons terakhir bukan untuk id ini (race), abaikan
+      if (lastBreadcrumbRequestFor !== folderId) return breadcrumbs.value;
+
+      breadcrumbs.value = ordered;
+      breadcrumbsCache.value.set(folderId, ordered);
+      return ordered;
+    } catch (e: any) {
+      breadcrumbsError.value = e?.message ?? 'Failed to load breadcrumbs';
+      // fallback: coba compute lokal dari tree bila memungkinkan
+      const fallback = computeLocalBreadcrumbs(folderId);
+      breadcrumbs.value = fallback;
+      return fallback;
+    } finally {
+      breadcrumbsLoading.value = false;
+    }
+  }
+
+  function computeLocalBreadcrumbs(folderId: ID): FolderEntity[] {
+    const path: FolderEntity[] = [];
+    let cur = findNodeById(folderId);
+    const guard = new Set<ID>();
+    while (cur && !guard.has(cur.id)) {
+      guard.add(cur.id);
+      path.push({
+        id: cur.id,
+        name: cur.name,
+        parentId: cur.parentId ?? null,
+        path: cur.path,
+        depth: cur.depth,
+      } as FolderEntity);
+      cur = cur.parentId ? findNodeById(cur.parentId) : null;
+    }
+    return path.reverse();
+  }
+
+  async function refreshBreadcrumbs(folderId: ID) {
+    await loadBreadcrumbs(folderId, { useCache: true });
+  }
+
+  // Expand tree sepanjang breadcrumbs lalu select target.
+  async function ensureExpandedAlongBreadcrumbs(list: FolderEntity[]) {
+    for (const bc of list) {
+      // expand node sesuai urutan
+      if (!expandedIds.value.has(bc.id)) {
+        await toggleExpand(bc.id);
+      }
+    }
+  }
+
+  async function onBreadcrumbClick(folderId: ID) {
+    // kalau breadcrumbs saat ini memuat id tersebut, expand sampai sana
+    const list = breadcrumbs.value;
+    const idx = list.findIndex(b => b.id === folderId);
+    if (idx >= 0) {
+      await ensureExpandedAlongBreadcrumbs(list.slice(0, idx + 1));
+      select(folderId);
+      return;
+    }
+    // jika tidak ada di list (misal cache), tetap select dan refresh
+    select(folderId);
+  }
+
+  const breadcrumbItems = computed(() => {
+    return breadcrumbs.value.map(b => ({
+      id: b.id,
+      label: b.name,
+      path: b.path,
+      depth: b.depth,
+    }));
+  });
+
   return {
     // state
     treeData,
@@ -182,10 +283,23 @@ export function useFolderViewModel(folderPort: FolderPort) {
     expandedIds,
     selectedId,
     rightPanelChildren,
+
+    // [breadcrumbs] state
+    breadcrumbs,
+    breadcrumbsLoading,
+    breadcrumbsError,
+    breadcrumbItems,
+
     // actions
     loadRoot,
     toggleExpand,
     select,
     search,
+
+    // [breadcrumbs] actions
+    loadBreadcrumbs,
+    refreshBreadcrumbs,
+    onBreadcrumbClick,
+    ensureExpandedAlongBreadcrumbs,
   };
 }
