@@ -44,6 +44,36 @@ function handleFolderClick(child: any) {
           <div class="folder-name">{{ child?.name }}</div>
         </button>
       </div>
+
+      <!-- Files Section -->
+      <div v-if="vm.rightPanelFiles?.value?.length" class="section">
+        <h3 class="section-title">Files</h3>
+        <div class="files-grid">
+          <button
+            v-for="file in vm.rightPanelFiles.value"
+            :key="file.id"
+            class="file-tile"
+            :title="`${file.name}${file.ext ? '.' + file.ext : ''}`"
+          >
+            <div class="file-icon" :class="`ext-${file.ext?.toLowerCase() || 'unknown'}`">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                <path d="M14 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <!-- <span v-if="file.ext" class="ext-badge">{{ file.ext }}</span> -->
+            </div>
+            <div class="file-info">
+              <div class="file-name">
+                {{ file.name }}<span v-if="file.ext">.{{ file.ext }}</span>
+              </div>
+              <div v-if="file.size" class="file-meta">
+                <!-- {{ formatFileSize(file.size) }} -->
+                {{ file.size }}
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>

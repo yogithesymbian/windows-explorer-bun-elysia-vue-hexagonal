@@ -8,8 +8,8 @@ import { FileMapper } from "../mappers/file.mapper";
 export class FileApiAdapter implements FilePort {
   constructor(private api: ApiClient) {}
   listFiles(folderId: string, params?: ListFilesParams): Promise<FileEntity[]> {
-    return this.api.get<FileDTO[]>(`/files`, { params: { folderId } })
+    return this.api.get<FileDTO[]>(`/folders/${folderId}/files`, { params })
       .then(dtos => 
         dtos.map(dto => FileMapper.toDomain(dto)));
-  }  
+  }
 }

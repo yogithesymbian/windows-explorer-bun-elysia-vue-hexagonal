@@ -3,6 +3,10 @@ import { ref, computed } from "vue";
 import type { FolderPort } from "../../application/ports/folder.port";
 import type { FolderEntity } from "@/application/domain/folder.entity";
 
+
+import type { FilePort, ListFilesParams } from "@/application/ports/file.port";
+import type { FileEntity } from "@/application/domain/file.entity";
+
 type ID = string;
 
 // Node khusus presentasi (tidak mengubah domain)
@@ -12,7 +16,7 @@ export type FolderNode = FolderEntity & {
   childCount?: number;
 };
 
-export function useFolderViewModel(folderPort: FolderPort) {
+export function useFolderViewModel(folderPort: FolderPort, filePort: FilePort) {
   const treeData = ref<FolderNode[]>([]);
   const searchResults = ref<FolderEntity[]>([]);
 
@@ -25,6 +29,13 @@ export function useFolderViewModel(folderPort: FolderPort) {
   // index cepat id -> node (dari treeData)
   const idToNode = ref<Map<ID, FolderNode>>(new Map());
   const loadingIds = ref<Set<ID>>(new Set()); // agar tidak double fetch saat expand cepat-cepat
+
+  // ========= Files state =========
+  const filesLoading = ref(false);
+  const filesError = ref<string | null>(null);
+  const filesByFolderId = ref<Map<ID, FileEntity[]>>(new Map());
+  let lastFilesRequestFor: ID | null = null;
+
   function buildIndex(nodes: FolderNode[]) {
     const map = new Map<ID, FolderNode>();
     const stack = [...nodes];
@@ -86,6 +97,11 @@ export function useFolderViewModel(folderPort: FolderPort) {
       // [breadcrumbs] reset jika pindah root
       breadcrumbs.value = [];
       breadcrumbsError.value = null;
+
+      // reset files state ketika berubah root
+      filesByFolderId.value.clear();
+      filesError.value = null;
+      filesLoading.value = false;
     } catch (err: any) {
       error.value = err.message || 'Failed to load root folders';
     } finally {
@@ -144,6 +160,36 @@ export function useFolderViewModel(folderPort: FolderPort) {
     expandedIds.value.add(id);
   }
 
+  // ======== Files loader ========
+  async function loadFiles(folderId: ID, params?: ListFilesParams, opts: { useCache?: boolean } = {}) {
+    const { useCache = true } = opts;
+    filesLoading.value = true;
+    filesError.value = null;
+
+    try {
+      if (useCache && filesByFolderId.value.has(folderId)) {
+        // cache hit
+        return filesByFolderId.value.get(folderId)!;
+      }
+
+      lastFilesRequestFor = folderId;
+      const files = await filePort.listFiles(folderId, params);
+
+      // race guard: jika sudah pindah folder, abaikan respons lama
+      if (lastFilesRequestFor !== folderId) {
+        return filesByFolderId.value.get(lastFilesRequestFor!) ?? [];
+      }
+
+      filesByFolderId.value.set(folderId, files);
+      return files;
+    } catch (e: any) {
+      filesError.value = e?.message ?? 'Failed to load files';
+      return [];
+    } finally {
+      filesLoading.value = false;
+    }
+  }
+
   function select(id: ID) {
     selectedId.value = id;
     // auto-load direct children untuk panel kanan bila belum ada (non-blocking)
@@ -151,6 +197,12 @@ export function useFolderViewModel(folderPort: FolderPort) {
     if (node && (!node.children || node.children.length === 0)) {
       loadChildren(id).then((chs) => attachChildren(id, chs));
     }
+
+    // auto-load files untuk panel kanan (non-blocking, gunakan cache)
+    loadFiles(id, undefined, { useCache: true }).catch(() => {
+      /* noop, error ditangani di filesError */
+    });
+
     // [breadcrumbs] refresh (non-blocking)
     refreshBreadcrumbs(id);
   }
@@ -274,6 +326,11 @@ export function useFolderViewModel(folderPort: FolderPort) {
     }));
   });
 
+  const rightPanelFiles = computed<FileEntity[]>(() => {
+    if (!selectedId.value) return [];
+    return filesByFolderId.value.get(selectedId.value) ?? [];
+  });
+
   return {
     // state
     treeData,
@@ -283,6 +340,7 @@ export function useFolderViewModel(folderPort: FolderPort) {
     expandedIds,
     selectedId,
     rightPanelChildren,
+    rightPanelFiles,
 
     // [breadcrumbs] state
     breadcrumbs,
@@ -290,11 +348,18 @@ export function useFolderViewModel(folderPort: FolderPort) {
     breadcrumbsError,
     breadcrumbItems,
 
+    // files state
+    filesLoading,
+    filesError,
+
     // actions
     loadRoot,
     toggleExpand,
     select,
     search,
+
+    // files actions
+    loadFiles,
 
     // [breadcrumbs] actions
     loadBreadcrumbs,

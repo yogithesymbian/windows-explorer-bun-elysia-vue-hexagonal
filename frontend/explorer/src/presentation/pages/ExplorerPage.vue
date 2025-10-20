@@ -9,7 +9,7 @@ import InfokesSidebarTree from "../components/InfokesSidebarTree.vue";
 const container = inject<any>('container');
 if (!container) throw new Error('DI container not found');
 
-const folderVM = useFolderViewModel(container.folderPort);
+const folderVM = useFolderViewModel(container.folderPort, container.filePort);
 // provide agar anak-anak bisa inject tanpa bikin instance baru
 provide('folderVM', folderVM);
 
