@@ -1,0 +1,6 @@
+[workspace]
+members = [
+  "backend/explorer/api",
+  "backend/explorer/infrastructure",
+  "frontend/explorer"
+]

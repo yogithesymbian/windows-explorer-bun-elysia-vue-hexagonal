@@ -7,18 +7,27 @@
     "frontend/explorer"
   ],
   "scripts": {
-    "generate:env": "bun scripts/generate-env.ts",
+    "prod:api": "bun --filter explorer-api run start",
     "dev:api": "bun --filter explorer-api --env-file=./backend/explorer/.env dev",
+
+    
+    
+    "prod:fe": "bun --filter explorer-fe preview",
     "dev:fe": "bun --filter explorer-fe --env-file=./frontend/explorer/.env dev",
-    "docs:export": "bun --filter explorer-api run docs:export",
-    "lint:api": "bun --filter explorer-api run lint:api",
-    "db:migrate": "bun --filter explorer-infrastructure --env-file=./backend/explorer/.env migrate",
-    "db:seed": "bun --filter explorer-infrastructure --env-file=./backend/explorer/.env seed",
-    "db:gen": "bun --filter explorer-infrastructure --env-file=./backend/explorer/.env db:gen",
-    "db:gen:custom": "bun --filter explorer-infrastructure --env-file=./backend/explorer/.env db:gen:custom",
-    "db:test": "bun --filter explorer-infrastructure --env-file=./backend/explorer/.env test",
-    "pretest": "mkdir -p reports",
+
+    
+    "db:migrate": "bun --filter explorer-infrastructure migrate",
+    "db:seed": "bun --filter explorer-infrastructure seed",
+    "db:gen": "bun --filter explorer-infrastructure db:gen",
+    "db:gen:custom": "bun --filter explorer-infrastructure db:gen:custom",
+    "db:test": "bun --filter explorer-infrastructure test",
+
+
+    "generate:env": "bun scripts/generate-env.ts",
+    "docs:export": "bun --filter explorer-api docs:export",
+    "lint:api": "bun --filter explorer-api lint:api",
     "test:api": "bun --filter explorer-api test",
-    "test": "bun --filter '*' test"
+    "test": "bun --filter '*' test",
+    "pretest": "mkdir -p reports"
   }
 }

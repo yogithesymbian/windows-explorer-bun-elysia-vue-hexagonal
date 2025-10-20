@@ -1,0 +1,44 @@
+services:
+  # =========================
+  # 1. Backend API Service
+  # =========================
+  - type: web
+    name: explorer-api
+    env: bun
+    rootDir: backend/explorer/api
+    plan: free
+    buildCommand: bun install
+    startCommand: bun run prod:api
+    postDeployCommand: bun run generate:env && bun run db:migrate && bun run db:seed
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Tambahkan DB_URL, REDIS_URL, dsb dari dashboard Render
+
+  # =========================
+  # 2. Frontend Vue Service
+  # =========================
+  - type: static
+    name: explorer-frontend
+    rootDir: frontend/explorer
+    plan: free
+    buildCommand: bun install && bun run build
+    publishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://explorer-api.onrender.com
+
+  # =========================
+  # 3. (Optional) Manual Migration Service
+  # =========================
+  - type: private_service
+    name: explorer-migrations
+    env: bun
+    rootDir: backend/explorer/infrastructure
+    plan: free
+    buildCommand: bun install
+    startCommand: bun run migrate
+    autoDeploy: false
+    envVars:
+      - key: NODE_ENV
+        value: production
