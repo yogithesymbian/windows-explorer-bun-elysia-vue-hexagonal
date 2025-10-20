@@ -60,7 +60,7 @@ function handleFolderClick(child: any) {
                 <path d="M14 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
-              <!-- <span v-if="file.ext" class="ext-badge">{{ file.ext }}</span> -->
+              <span v-if="file.ext" class="ext-badge">{{ file.ext }}</span>
             </div>
             <div class="file-info">
               <div class="file-name">
@@ -232,6 +232,148 @@ function handleFolderClick(child: any) {
 
   .folder-name {
     color: #e5e7eb;
+  }
+}
+</style>
+
+<!-- file section enhance -->
+<style scoped>
+/* Files Section */
+.section {
+  margin-top: 24px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 12px;
+}
+
+.files-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.file-tile {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 120px;
+  text-align: center;
+}
+
+.file-tile:hover {
+  border-color: #3b82f6;
+  background: #f8faff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.file-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+  font-size: 24px;
+  color: #6b7280;
+}
+
+.file-tile:hover .file-icon {
+  transform: scale(1.1);
+  color: #3b82f6;
+}
+
+/* File Name & Meta */
+.file-info {
+  width: 100%;
+}
+
+.file-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.file-meta {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.ext-badge {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  background: #3b82f6;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+
+@media (max-width: 768px) {
+  .files-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+
+  .file-tile {
+    min-height: 100px;
+    padding: 10px 8px;
+  }
+
+  .file-name {
+    font-size: 12px;
+  }
+
+  .file-meta {
+    font-size: 11px;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .section-title {
+    color: #e5e7eb;
+  }
+
+  .file-tile {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .file-tile:hover {
+    border-color: #60a5fa;
+    background: #1e3a5f;
+    box-shadow: 0 4px 12px rgba(96, 165, 250, 0.2);
+  }
+
+  .file-icon {
+    color: #9ca3af;
+  }
+
+  .file-name {
+    color: #e5e7eb;
+  }
+
+  .file-meta {
+    color: #9ca3af;
   }
 }
 </style>
