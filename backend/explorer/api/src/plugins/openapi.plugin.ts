@@ -12,7 +12,7 @@ export const openApiPlugin = openapi({
       version: '1.0.0',
       contact: {
         name: "Yogi Arif Widodo",
-        email: "yogi@example.com"
+        email: "yogi@yogiveloper.com"
       },
       description: 'File & Folder explorer service with ltree + FTS'
     },

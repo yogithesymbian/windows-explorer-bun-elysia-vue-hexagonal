@@ -10,7 +10,7 @@ export const foldersRoutes = (deps: Deps) =>
     }), { 
         detail: { summary: 'Ambil tree', tags: ['Folders'] , description: 'Get subtree of folders'},
         query: t.Object({ 
-          rootPath: t.Optional(t.String( { description: 'ltree path, contoh root', default: 'root' })), 
+          rootPath: t.Optional(t.String( { description: 'ltree path, contoh root atau infokes', default: 'infokes' })), 
           maxDepth: t.Optional(t.Number( { description: 'kedalaman tree relatif terhadap maxDepth', default: 2, })) 
         }),
         response: t.Array(t.Object({

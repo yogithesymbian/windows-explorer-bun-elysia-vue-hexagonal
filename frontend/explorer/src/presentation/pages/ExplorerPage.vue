@@ -17,7 +17,7 @@ onMounted(() => {
   // Sesuaikan rootPath & depth preferensimu.
   //  - Requirement minta "kiri memuat semua folder saat load": pakai depth besar (mis. 10)
   //  - Atau realistis (2) + lazy expand (lebih scalable)
-  folderVM.loadRoot('root', 2);
+  folderVM.loadRoot('infokes', 2);
 });
 </script>
 
