@@ -1,25 +1,31 @@
-# 📸 Application Preview Gallery
-
-## 🔷 Frontend Preview
-| Screenshot | Screenshot |
-|-----------|-----------|
-| <a href="./docs/gallery/frontend-1.webp"><img src="./docs/gallery/frontend-1.webp" width="300" alt="Frontend UI 1"></a> | <a href="./docs/gallery/frontend-2.webp"><img src="./docs/gallery/frontend-2.webp" width="300" alt="Frontend UI 2"></a> |
-
-> *Klik gambar untuk memperbesar*
-
----
-
-## 🔶 Backend Preview
-| Screenshot | Screenshot |
-|-----------|-----------|
-| <a href="./docs/gallery/backend-1.webp"><img src="./docs/gallery/backend-1.webp" width="300" alt="Backend 1"></a> | <a href="./docs/gallery/backend-2.webp"><img src="./docs/gallery/backend-2.webp" width="300" alt="Backend 2"></a> |
-
-> *Klik gambar untuk memperbesar*
-
-
 # 🗂️ Windows Explorer Backend + Frontend
 
 Backend API untuk aplikasi Windows Explorer-like berbasis web. Dibangun dengan arsitektur hexagonal (clean architecture), menggunakan Bun + Elysia + PostgreSQL + Redis, dan dioptimalkan untuk scalability.
+
+### example for ltree
+```
+sequenceDiagram
+  autonumber
+  participant UI as Vue3 UI (composable/usecase FE)
+  participant API as Elysia Controller
+  participant UC as UseCase: SearchItems (BE)
+  participant Cache as Redis
+  participant Repo as Postgres (FTS)
+
+  UI->>API: GET /search?q=<query>&scope=<ltree_scope>
+  API->>UC: call SearchItems(q, scope)
+  UC->>Cache: GET search:{scope}:{norm_q}
+  alt miss cache
+    UC->>Repo: SELECT ... WHERE path_ltree <@ scope
+    UC->>Repo: AND search_vector @@ plainto_tsquery('simple', unaccent(q))
+    Repo-->>UC: items[]
+    UC->>Cache: SET search:{scope}:{norm_q} TTL=30s
+  else hit cache
+    Cache-->>UC: items[]
+  end
+  UC-->>API: items[]
+  API-->>UI: 200 OK
+```
 
 ## 🚀 Tech Stack
 ### Backend
@@ -49,6 +55,24 @@ Backend API untuk aplikasi Windows Explorer-like berbasis web. Dibangun dengan a
 - Connection pooling with PgBouncer for high concurrency
 - Load testing with k6 and wrk
 - Query profiling with EXPLAIN ANALYZE
+
+## 📸 Application Preview Gallery
+
+### 🔷 Frontend Preview
+| Screenshot | Screenshot |
+|-----------|-----------|
+| <a href="./docs/gallery/frontend-1.webp"><img src="./docs/gallery/frontend-1.webp" width="300" alt="Frontend UI 1"></a> | <a href="./docs/gallery/frontend-2.webp"><img src="./docs/gallery/frontend-2.webp" width="300" alt="Frontend UI 2"></a> |
+
+> *Klik gambar untuk memperbesar*
+
+---
+
+### 🔶 Backend Preview
+| Screenshot | Screenshot |
+|-----------|-----------|
+| <a href="./docs/gallery/backend-1.webp"><img src="./docs/gallery/backend-1.webp" width="300" alt="Backend 1"></a> | <a href="./docs/gallery/backend-2.webp"><img src="./docs/gallery/backend-2.webp" width="300" alt="Backend 2"></a> |
+
+> *Klik gambar untuk memperbesar*
 
 ## 📦 Folder Structure
 
@@ -132,6 +156,17 @@ OpenAPI spec tersedia di `api/docs/openapi.json`, dilint dengan Spectral untuk m
 
 - `tests/query/explain-subtree.sql`
 
+## ✅ Requirements / Test By
+
+### Runtime & OS
+- **Bun** ≥ `1.2.22`
+- **OS**: macOS
+
+### Services
+- **PostgreSQL**: `14`
+  - Extensions: `ltree`
+- **Redis** ≥ `7.2.7`
+
 ## 📌 Setup
 
 1. Clone repository:
@@ -177,6 +212,9 @@ explorer-fe dev $ bun --bun vite
 │   ➜  Network: use --host to expose
 └─ Running...
 ```
+
+
+
 
 ##  🧠 Author
 Yogi Arif Widodo
