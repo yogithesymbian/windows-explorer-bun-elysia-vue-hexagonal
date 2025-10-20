@@ -1,0 +1,537 @@
+{
+  "openapi": "3.0.3",
+  "servers": [
+    {
+      "url": "/api/v1"
+    }
+  ],
+  "info": {
+    "title": "Explorer API",
+    "description": "File & Folder explorer service with ltree + FTS",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Yogi Arif Widodo",
+      "email": "yogi@example.com"
+    }
+  },
+  "tags": [
+    {
+      "name": "Folders",
+      "description": "Hierarki & navigasi folder"
+    },
+    {
+      "name": "Files",
+      "description": "Listing & pencarian files"
+    },
+    {
+      "name": "Search",
+      "description": "Global search"
+    }
+  ],
+  "paths": {
+    "/api/v1/tree": {
+      "get": {
+        "summary": "Ambi tree",
+        "tags": [
+          "Folders"
+        ],
+        "description": "Get subtree of folders",
+        "parameters": [
+          {
+            "name": "rootPath",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "description": "ltree path, contoh root",
+              "default": "root",
+              "type": "string"
+            }
+          },
+          {
+            "name": "maxDepth",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "description": "kedalaman tree relatif terhadap maxDepth",
+              "default": 2,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List node dalam tree",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "List node dalam tree",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "parentId": {
+                        "nullable": true,
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "path": {
+                        "type": "string"
+                      },
+                      "depth": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name",
+                      "parentId",
+                      "path",
+                      "depth"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getApiV1Tree"
+      }
+    },
+    "/api/v1/folders/{id}/children": {
+      "get": {
+        "summary": "Ambi subtree",
+        "tags": [
+          "Folders"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "description": "folder id",
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "description": "limit default 50",
+              "anyOf": [
+                {
+                  "format": "integer",
+                  "default": 0,
+                  "type": "string"
+                },
+                {
+                  "description": "limit default 50",
+                  "type": "integer"
+                }
+              ]
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "description": "offset default 0",
+              "anyOf": [
+                {
+                  "format": "integer",
+                  "default": 0,
+                  "type": "string"
+                },
+                {
+                  "description": "offset default 0",
+                  "type": "integer"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List node dalam subtree",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "List node dalam subtree",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "parentId": {
+                        "nullable": true,
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "path": {
+                        "type": "string"
+                      },
+                      "depth": {
+                        "anyOf": [
+                          {
+                            "format": "integer",
+                            "default": 0,
+                            "type": "string"
+                          },
+                          {
+                            "type": "integer"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name",
+                      "parentId",
+                      "path",
+                      "depth"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getApiV1FoldersByIdChildren"
+      }
+    },
+    "/api/v1/folders/{id}/breadcrumbs": {
+      "get": {
+        "summary": "Ambi subtree",
+        "tags": [
+          "Folders"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "description": "folder ID",
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "description": "limit default 50",
+              "anyOf": [
+                {
+                  "format": "integer",
+                  "default": 0,
+                  "type": "string"
+                },
+                {
+                  "description": "limit default 50",
+                  "type": "integer"
+                }
+              ]
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "description": "offset default 0",
+              "anyOf": [
+                {
+                  "format": "integer",
+                  "default": 0,
+                  "type": "string"
+                },
+                {
+                  "description": "offset default 0",
+                  "type": "integer"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "get breadcrumbs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "get breadcrumbs",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "parentId": {
+                        "nullable": true,
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "path": {
+                        "type": "string"
+                      },
+                      "depth": {
+                        "anyOf": [
+                          {
+                            "format": "integer",
+                            "default": 0,
+                            "type": "string"
+                          },
+                          {
+                            "type": "integer"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name",
+                      "parentId",
+                      "path",
+                      "depth"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getApiV1FoldersByIdBreadcrumbs"
+      }
+    },
+    "/api/v1/folders/{id}/files": {
+      "get": {
+        "summary": "show files by select folder",
+        "tags": [
+          "Files"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "integer",
+                  "default": 0,
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "integer",
+                  "default": 0,
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List files",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "List files",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "folderId": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "ext": {
+                        "nullable": true,
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "size": {
+                        "nullable": true,
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "folderId",
+                      "name",
+                      "ext",
+                      "size"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getApiV1FoldersByIdFiles"
+      }
+    },
+    "/api/v1/search": {
+      "get": {
+        "summary": "search folder or file",
+        "tags": [
+          "Folders",
+          "File"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "file",
+                "folder"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "integer",
+                  "default": 0,
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "integer",
+                  "default": 0,
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            }
+          }
+        ],
+        "operationId": "getApiV1Search"
+      }
+    }
+  },
+  "components": {
+    "schemas": {}
+  }
+}

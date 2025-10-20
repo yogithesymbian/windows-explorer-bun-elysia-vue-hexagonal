@@ -6,11 +6,13 @@
     "seed": "bun run db/seed.ts",
     "db:client": "bun run db/client.ts",
     "db:gen": "bun x drizzle-kit generate",
-    "db:gen:custom": "bun x drizzle-kit generate --custom --name=ltree-fts"
+    "db:gen:custom": "bun x drizzle-kit generate --custom --name=ltree-fts",
+    "test": "bun test"
   },
   "dependencies": {
     "dotenv": "^17.2.3",
-    "drizzle-orm": "^0.44.6"
+    "drizzle-orm": "^0.44.6",
+    "ioredis": "^5.8.1"
   },
   "devDependencies": {
     "bun-types": "latest",

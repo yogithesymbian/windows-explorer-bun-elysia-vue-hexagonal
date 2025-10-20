@@ -1,0 +1,53 @@
+extends:
+  - ["spectral:oas", "recommended"]
+
+rules:
+  api-version-in-servers:
+    description: "Server URL harus mengandung prefix versi (contoh: /api/v1)"
+    given: $.servers[*].url
+    then:
+      function: pattern
+      functionOptions:
+        match: "/api/v\\d+"
+
+  paths-kebab-case:
+    description: "Semua path harus lowercase-kebab-case; gunakan {param} untuk ID"
+    given: $.paths
+    then:
+      field: "@key"
+      function: pattern
+      functionOptions:
+        match: "^(\\/([a-z0-9\\-{}]+))*$"
+
+  operationId-required:
+    description: "Setiap operasi sebaiknya punya operationId unik"
+    given: $.paths[*][*]
+    then:
+      field: operationId
+      function: truthy
+      severity: warn
+
+  # response-2xx-and-4xx:
+  #   description: "Setiap operasi minimal punya 2xx, dan kalau validasi ada, sertakan 4xx"
+  #   given: $.paths[*][*].responses
+  #   then:
+  #     function: falsy
+  #     functionOptions:
+  #       not:
+  #         - "null"
+    # aturan spesifik bisa ditambah: wajib 200/201, 400 untuk VALIDATION
+
+  list-endpoints-pagination:
+    description: "Endpoint list sebaiknya mendukung pagination (limit & offset)"
+    given:
+      - $.paths["/folders/{id}/children"].get.parameters[*]
+      - $.paths["/folders/{id}/files"].get.parameters[*]
+      - $.paths["/search"].get.parameters[*]
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          oneOf:
+            - { $ref: "#/components/parameters/limit" }
+            - { $ref: "#/components/parameters/offset" }
+      severity: warn

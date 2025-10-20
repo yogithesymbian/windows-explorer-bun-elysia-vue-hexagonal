@@ -4,13 +4,20 @@
   "scripts": {
     "dev": "bun run --watch src/index.ts",
     "pretest": "mkdir -p ../../reports",
-    "test": "bun test"
+    "test": "bun test",
+
+    "docs:export": "bun run /scripts/export-openapi.ts",
+    "lint:api": "spectral lint docs/openapi.json --ruleset .spectral.yaml"
+    
+
   },
   "dependencies": {
+    "@elysiajs/openapi": "^1.4.11",
     "dotenv": "^17.2.3",
     "elysia": "latest"
   },
   "devDependencies": {
+    "@stoplight/spectral-cli": "^6.15.0",
     "bun-types": "latest"
   }
 }
