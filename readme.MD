@@ -216,6 +216,9 @@ explorer-fe dev $ bun --bun vite
 ```
 
 
+## 💡 Developer's Note
+
+To be honest, I mainly use AI to speed up development. It helps me build backend and frontend apps using the Hexagonal Pattern, including writing tests. AI also makes code reviews easier and helps reduce mistakes. I always ask for references from official documentation, public journals, or books to support the final answers.
 
 
 ##  🧠 Author

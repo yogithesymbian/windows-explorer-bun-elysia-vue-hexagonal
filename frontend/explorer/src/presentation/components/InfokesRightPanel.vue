@@ -1,6 +1,28 @@
 <!-- src/presentation/components/RightPanel.vue -->
 <script setup lang="ts">
 import { inject } from "vue";
+import { ref } from 'vue';
+import FilePreviewModal from './InfokesFilePreviewModal.vue';
+
+const showPreviewModal = ref(false);
+const selectedFile = ref<any>(null);
+
+function handleFileClick(file: any) {
+  selectedFile.value = file;
+  showPreviewModal.value = true;
+}
+
+function handleCloseModal() {
+  showPreviewModal.value = false;
+  selectedFile.value = null;
+}
+
+function handleDownload(file: any) {
+  // Tambahkan logika download sesuai kebutuhan
+  console.log('Download file:', file);
+}
+
+
 import InfokesBreadCrumbs from "./InfokesBreadCrumbs.vue";
 
 const vm = inject<any>('folderVM');
@@ -10,6 +32,8 @@ function handleFolderClick(child: any) {
   // Tambahkan logic untuk handle click folder jika perlu
   console.log('Folder clicked:', child);
   vm.onBreadcrumbClick(child.id);
+  selectedFile.value = child;
+  showPreviewModal.value = true;
 }
 </script>
 
@@ -26,6 +50,14 @@ function handleFolderClick(child: any) {
     </div>
     
     <div v-else class="content">
+
+    <FilePreviewModal
+      :show="showPreviewModal"
+      :file="selectedFile"
+      @close="handleCloseModal"
+      @download="handleDownload"
+    />
+
       <InfokesBreadCrumbs />
       
       <div class="folders-grid">
@@ -53,6 +85,7 @@ function handleFolderClick(child: any) {
             v-for="file in vm.rightPanelFiles.value"
             :key="file.id"
             class="file-tile"
+            @click="handleFileClick(file)"
             :title="`${file.name}${file.ext ? '.' + file.ext : ''}`"
           >
             <div class="file-icon" :class="`ext-${file.ext?.toLowerCase() || 'unknown'}`">
