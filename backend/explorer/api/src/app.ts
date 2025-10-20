@@ -4,12 +4,17 @@ import { foldersRoutes } from './routes/folders.routes';
 import { filesRoutes } from './routes/files.routes';
 import { searchRoutes } from './routes/search.routes';
 import { openApiPlugin } from './plugins/openapi.plugin';
+import cors from '@elysiajs/cors';
 // import { DomainError } from '@application/errors';
 
 export const createApp = (depsOverride?: Partial<Deps>) => {
   const deps = buildDependencies(depsOverride);
   return new Elysia()
     .use(openApiPlugin)
+    .use(cors({
+      origin: 'http://localhost:5173', // or '*' for all
+      credentials: true
+    }))
     .use(foldersRoutes(deps))
     .use(filesRoutes(deps))
     .use(searchRoutes(deps))

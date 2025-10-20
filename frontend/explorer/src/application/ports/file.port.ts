@@ -1,5 +1,14 @@
-import type { FileDTO } from "../../shared/file.dto";
+// src/application/ports/file.port.ts
+import type { FileEntity } from "@application/domain/file.entity";
+
+export interface ListFilesParams {
+  limit?: number;
+  offset?: number;
+}
 
 export interface FilePort {
-  listFiles(folderId: string): Promise<FileDTO[]>;
+  /**
+   * List files inside folder by folder ID
+   */
+  listFiles(folderId: string, params?: ListFilesParams): Promise<FileEntity[]>;
 }

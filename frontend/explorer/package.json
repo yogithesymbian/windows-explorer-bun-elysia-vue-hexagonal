@@ -1,12 +1,13 @@
 {
-  "name": "explorer",
+  "name": "explorer-fe",
+  "version": "1.0.1",
   "module": "index.ts",
   "type": "module",
   "private": true,
-   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+  "scripts": {
+    "dev": "bun --bun vite",
+    "build": "bun --bun vite build",
+    "preview": "bun --bun vite preview"
   },
   "devDependencies": {
     "@types/bun": "latest",
@@ -20,6 +21,7 @@
     "naive-ui": "^2.43.1",
     "pinia": "^3.0.3",
     "vite": "^7.1.10",
-    "vue": "^3.5.22"
+    "vue": "^3.5.22",
+    "vue-router": "4"
   }
 }

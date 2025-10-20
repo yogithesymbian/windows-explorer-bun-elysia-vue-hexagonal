@@ -1,0 +1,191 @@
+// src/presentation/viewmodels/useFolderViewModel.ts
+import { ref, computed } from "vue";
+import type { FolderPort } from "../../application/ports/folder.port";
+import type { FolderEntity } from "@/application/domain/folder.entity";
+
+type ID = string;
+
+// Node khusus presentasi (tidak mengubah domain)
+export type FolderNode = FolderEntity & {
+  children?: FolderNode[];
+  hasChildren?: boolean;   // unknown -> true untuk allow lazy
+  childCount?: number;
+};
+
+export function useFolderViewModel(folderPort: FolderPort) {
+  const treeData = ref<FolderNode[]>([]);
+  const searchResults = ref<FolderEntity[]>([]);
+
+  const loading = ref(false);
+  const error = ref<string | null>(null);
+
+  const expandedIds = ref<Set<ID>>(new Set());
+  const selectedId = ref<ID | null>(null);
+
+  // index cepat id -> node (dari treeData)
+  const idToNode = ref<Map<ID, FolderNode>>(new Map());
+  const loadingIds = ref<Set<ID>>(new Set()); // agar tidak double fetch saat expand cepat-cepat
+  function buildIndex(nodes: FolderNode[]) {
+    const map = new Map<ID, FolderNode>();
+    const stack = [...nodes];
+    while (stack.length) {
+      const n = stack.pop()!;
+      map.set(n.id, n);
+      if (n.children?.length) stack.push(...n.children);
+    }
+    idToNode.value = map;
+  }
+
+  /** Normalisasi flat array -> pohon (children[]). 
+   *  Kita juga coba hitung childCount & hasChildren dari flat list yang tersedia. */
+  function buildTreeFromFlat(flat: FolderEntity[]): FolderNode[] {
+    const nodeMap = new Map<ID, FolderNode>();
+    const childCountMap = new Map<ID, number>();
+
+    // siapkan node dasar
+    for (const it of flat) {
+      nodeMap.set(it.id, { ...it, children: [] });
+      if (it.parentId) {
+        childCountMap.set(it.parentId, (childCountMap.get(it.parentId) ?? 0) + 1);
+      }
+    }
+
+    // assign childCount & hasChildren sementara
+    for (const [id, node] of nodeMap) {
+      const count = childCountMap.get(id) ?? 0;
+      node.childCount = count;
+      // jika `maxDepth` membatasi, childCount bisa 0 padahal masih punya anak real.
+      // Di kasus ini, kita tidak tahu. Biarkan undefined -> UI tetap boleh expand (lazy).
+      node.hasChildren = count > 0 ? true : undefined;
+    }
+
+    // bangun tree
+    const roots: FolderNode[] = [];
+    for (const node of nodeMap.values()) {
+      if (node.parentId && nodeMap.has(node.parentId)) {
+        nodeMap.get(node.parentId)!.children!.push(node);
+      } else {
+        roots.push(node);
+      }
+    }
+
+    return roots;
+  }
+
+  async function loadRoot(rootPath: string, maxDepth = 1) {
+    loading.value = true
+    error.value = null
+    try {
+      const flat = await folderPort.getSubTree(rootPath, maxDepth)
+      console.debug('[loadRoot] flat len =', flat.length, flat)
+      const tree = buildTreeFromFlat(flat)
+      console.debug('[loadRoot] tree roots =', tree.length, tree)
+      treeData.value = tree
+      buildIndex(tree)
+      selectedId.value = null
+    } catch (err: any) {
+      error.value = err.message || 'Failed to load root folders'
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function loadChildren(folderId: ID) {
+    try {
+      console.log("Loading children for folderId=", folderId);
+      const children = await folderPort.getChildren(folderId); // direct children (flat atau already direct)
+      // normalisasi hasil children: direct nodes saja
+      const normalized: FolderNode[] = children.map((c) => ({
+        ...c,
+        children: [],           // belum tahu anak-anaknya, akan lazy lagi
+        hasChildren: undefined, // unknown -> tetap bisa expand
+        childCount: undefined,
+      }));
+      return normalized;
+    } catch (err: any) {
+      error.value = err.message || "Failed to load children";
+      console.error("Failed to load children for folderId=", folderId, err);
+      return [];
+    }
+  }
+
+  function findNodeById(id: ID): FolderNode | null {
+    return idToNode.value.get(id) ?? null;
+  }
+
+  function attachChildren(parentId: ID, children: FolderNode[]) {
+    const parent = findNodeById(parentId);
+    if (!parent) return;
+    // reactive
+    parent.children = children;
+    parent.childCount = children.length;
+    parent.hasChildren = children.length > 0;
+    buildIndex(treeData.value);
+  }
+
+  async function toggleExpand(id: ID) {
+    if (expandedIds.value.has(id)) {
+      expandedIds.value.delete(id);
+      return;
+    }
+    const node = findNodeById(id);
+    if (!node) return;
+
+    // kalau belum ada children -> lazy fetch sekali
+    if ((!node.children || node.children.length === 0) && !loadingIds.value.has(id)) {
+      try {
+        loadingIds.value.add(id);
+        const children = await loadChildren(id);
+        attachChildren(id, children);
+      } finally {
+        loadingIds.value.delete(id);
+      }
+    }
+    expandedIds.value.add(id);
+  }
+
+  function select(id: ID) {
+    selectedId.value = id;
+    // opsional: auto-load direct children untuk panel kanan bila belum ada
+    const node = findNodeById(id);
+    if (node && (!node.children || node.children.length === 0)) {
+      // fire & forget (tidak perlu blocking)
+      loadChildren(id).then((chs) => attachChildren(id, chs));
+    }
+  }
+
+  async function search(keyword: string) {
+    loading.value = true;
+    error.value = null;
+    try {
+      const result = await folderPort.search(keyword);
+      searchResults.value = result;
+    } catch (err: any) {
+      error.value = err.message || "Search failed";
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  const rightPanelChildren = computed<FolderNode[]>(() => {
+    if (!selectedId.value) return [];
+    const node = findNodeById(selectedId.value);
+    return node?.children ?? [];
+  });
+
+  return {
+    // state
+    treeData,
+    searchResults,
+    loading,
+    error,
+    expandedIds,
+    selectedId,
+    rightPanelChildren,
+    // actions
+    loadRoot,
+    toggleExpand,
+    select,
+    search,
+  };
+}
