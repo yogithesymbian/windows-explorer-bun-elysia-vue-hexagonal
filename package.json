@@ -7,6 +7,7 @@
     "frontend/explorer"
   ],
   "scripts": {
+    "generate:env": "bun scripts/generate-env.ts",
     "dev:api": "bun --filter explorer-api --env-file=./backend/explorer/.env dev",
     "dev:fe": "bun --filter explorer-fe --env-file=./frontend/explorer/.env dev",
     "docs:export": "bun --filter explorer-api run docs:export",
@@ -19,8 +20,5 @@
     "pretest": "mkdir -p reports",
     "test:api": "bun --filter explorer-api test",
     "test": "bun --filter '*' test"
-  },
-  "dependencies": {
-    "@elysiajs/cors": "^1.4.0"
   }
 }
