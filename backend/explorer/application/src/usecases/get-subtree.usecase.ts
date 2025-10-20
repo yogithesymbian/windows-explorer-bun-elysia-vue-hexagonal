@@ -19,7 +19,7 @@ export class GetSubtree {
       throw new NotFoundError('Folder', { path: input.rootPath })
     }
     const result = rows.map(toFolderDTO);
-    await this.cache.set(cacheKey, result);
+    await this.cache.set(cacheKey, result, 300);
     return result;
   }
 }
