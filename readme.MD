@@ -6,7 +6,7 @@ Frontend menggunakan Vue 3 untuk consume API, dilengkapi dengan Naive UI sebagai
 
 Demo : 
 1. Elysia OpenAPI: https://windows-explorer-backend.onrender.com/docs
-2. Frontend :
+2. Frontend : https://windows-explorer-frontend.onrender.com
 
 deploy by 
 1. upstash.com for redis
