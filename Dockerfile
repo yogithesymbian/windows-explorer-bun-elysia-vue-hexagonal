@@ -1,20 +1,29 @@
-# Render doesnt support BUN, let me try with Docker on Render.com | Gunakan image resmi Bun. Versi 'latest' atau '1.0' bisa digunakan.
+# Render doesnt support BUN, let me try with Docker on Render.com 
+# but only for backend limitation demo server purpose
+# | Gunakan image resmi Bun. Versi 'latest' atau '1.0' bisa digunakan.
 FROM oven/bun:latest
 
 ARG APP_DIR=backend/explorer/api
+ARG APP_DIR_INFRA=backend/explorer/infrastructure
 
 # Set working directory di dalam container
-WORKDIR /app
+WORKDIR APP_DIR
+# WORKDIR /app
 
 # --- Manajemen Dependensi ---
 # Copy file dependensi dari root dan dari folder backend
 # Ini penting untuk memanfaatkan cache Docker
 # COPY package.json bun.lockb ./
 # COPY ${APP_DIR}/package.json ./${APP_DIR}/
-COPY ${APP_DIR}/package.json ./
+# COPY ${APP_DIR}/package.json ./
 
 # Install *hanya* dependensi produksi untuk menjaga image tetap kecil
 RUN bun install --production
+
+WORKDIR APP_DIR_INFRA
+RUN bun install --production
+
+WORKDIR /app
 
 # --- Copy Source Code ---
 # Copy sisa source code dari root monorepo
