@@ -1,45 +1,41 @@
-# Render doesnt support BUN, let me try with Docker on Render.com 
-# but only for backend limitation demo server purpose
-# | Gunakan image resmi Bun. Versi 'latest' atau '1.0' bisa digunakan.
+# Render doesnt support BUN, let me try with Docker on Render.com
 FROM oven/bun:latest
 
+# --- Variabel ---
 ARG APP_DIR=backend/explorer/api
 ARG APP_DIR_INFRA=backend/explorer/infrastructure
+ARG APP_DIR_FE=frontend/explorer/
 
-# Set working directory di dalam container
-WORKDIR APP_DIR
-# WORKDIR /app
+# --- TAHAP 1: SETUP DEPENDENSI ---
 
-# --- Manajemen Dependensi ---
-# Copy file dependensi dari root dan dari folder backend
-# Ini penting untuk memanfaatkan cache Docker
-# COPY package.json bun.lockb ./
-# COPY ${APP_DIR}/package.json ./${APP_DIR}/
-# COPY ${APP_DIR}/package.json ./
-
-# Install *hanya* dependensi produksi untuk menjaga image tetap kecil
-RUN bun install --production
-
-WORKDIR APP_DIR_INFRA
-RUN bun install --production
-
+# 1. Buat direktori kerja UTAMA
 WORKDIR /app
 
-# --- Copy Source Code ---
-# Copy sisa source code dari root monorepo
+# 2. Copy SEMUA file package.json & lockfile
+#    Ini PENTING agar Bun bisa memvalidasi struktur monorepo.
+# COPY package.json bun.lockb ./
+COPY package.json ./
+COPY ${APP_DIR}/package.json ./${APP_DIR}/
+COPY ${APP_DIR_INFRA}/package.json ./${APP_DIR_INFRA}/
+COPY ${APP_DIR_FE}/package.json ./${APP_DIR_FE}/
+
+# 3. Jalankan 'bun install' DARI ROOT ('/app')
+#    Kita pakai '--filter' agar HANYA meng-install dependensi API
+RUN bun install --production --filter=explorer-api
+RUN bun install --production --filter=explorer-infrastructure
+
+
+# --- TAHAP 2: COPY KODE & RUN ---
+
+# 4. Setelah dependensi ter-install, baru copy sisa source code
+#    Ini memanfaatkan Docker cache. 
+#    Jika kode berubah tapi dependensi tidak, build akan jauh lebih cepat.
 COPY . .
 
-# --- Konfigurasi Akhir ---
-# Set working directory ke folder backend spesifik Anda
+# 5. Pindah ke folder API
+#    Kita lakukan ini di akhir, HANYA untuk perintah CMD
 WORKDIR /app/${APP_DIR}
 
-# (Opsional) Jika Anda punya 'build' script di package.json
-# Hapus tanda # di bawah jika Anda perlu build TypeScript ke JavaScript
-# RUN bun run build
-
-# Expose port yang digunakan server Anda
+# 6. Expose port dan jalankan server
 EXPOSE 8080
-
-# Perintah default untuk menjalankan server Anda
-# GANTI 'src/index.ts' JIKA ENTRY FILE ANDA BERBEDA
 CMD ["bun", "run", "src/index.ts"]
