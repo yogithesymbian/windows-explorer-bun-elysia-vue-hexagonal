@@ -4,6 +4,14 @@ Backend API untuk aplikasi Windows Explorer-like berbasis web. Dibangun dengan a
 
 Frontend menggunakan Vue 3 untuk consume API, dilengkapi dengan Naive UI sebagai komponen antarmuka, serta Bun + scratch component untuk performa tinggi.
 
+Demo : 
+1. Elysia OpenAPI: https://windows-explorer-backend.onrender.com/docs
+2. Frontend :
+
+deploy by 
+1. upstash.com for redis
+2. render.com for backend & frontend ( but using docker ) because monorepo support but doesnt support for bun
+
 ### example for ltree
 ```mermaid
 sequenceDiagram
