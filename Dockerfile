@@ -9,7 +9,7 @@ WORKDIR /app
 # --- Manajemen Dependensi ---
 # Copy file dependensi dari root dan dari folder backend
 # Ini penting untuk memanfaatkan cache Docker
-COPY package.json bun.lockb ./
+COPY package.json ./
 COPY ${APP_DIR}/package.json ./${APP_DIR}/
 
 # Install *hanya* dependensi produksi untuk menjaga image tetap kecil
