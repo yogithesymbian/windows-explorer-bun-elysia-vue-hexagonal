@@ -16,8 +16,8 @@
     "dev:fe": "bun --filter explorer-fe --env-file=./frontend/explorer/.env dev",
 
     
-    "db:migrate": "bun --filter explorer-infrastructure migrate",
-    "db:seed": "bun --filter explorer-infrastructure seed",
+    "db:migrate": "bun --filter explorer-infrastructure --env-file=./backend/explorer/.env migrate",
+    "db:seed": "bun --filter explorer-infrastructure --env-file=./backend/explorer/.env seed",
     "db:gen": "bun --filter explorer-infrastructure db:gen",
     "db:gen:custom": "bun --filter explorer-infrastructure db:gen:custom",
     "db:test": "bun --filter explorer-infrastructure test",
