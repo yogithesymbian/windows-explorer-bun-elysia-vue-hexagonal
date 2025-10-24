@@ -1,3 +1,4 @@
+// backend/explorer/infrastructure/src/repositories/file.repo.pg.ts
 import { db } from '../../db/client';
 import { sql, eq } from 'drizzle-orm';
 import type { IFilesRepository, FileRow } from '@application/ports/file-repo.port';
