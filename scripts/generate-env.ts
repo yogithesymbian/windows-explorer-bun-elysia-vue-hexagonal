@@ -7,7 +7,14 @@ const backendEnv = `
 NODE_ENV=development
 PORT=8080
 # DATABASE_URL=postgresql://postgres:postgres@localhost:5432/explorer
-DATABASE_URL=postgres://yogi:password@localhost:5432/explorer_db
+# DATABASE_URL=postgres://yogi:password@localhost:5432/explorer_db
+
+DB_HOST=
+DB_USER=
+DB_PASSWORD=
+DB_NAME=
+DB_PORT=5432
+
 REDIS_URL=redis://localhost:6379
 CACHE_SUBTREE_TTL_SECONDS=300
 ROOT_PATH=root
